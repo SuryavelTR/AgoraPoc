@@ -17,7 +17,7 @@ class VideoContainerView @JvmOverloads constructor(
     private val binding: ViewVideoContainerBinding =
         ViewVideoContainerBinding.inflate(layoutInflater(), this)
 
-    fun addVideoView(view: SurfaceView, isLocal: Boolean = false) {
+    fun addVideoView(view: View, isLocal: Boolean = false) {
         binding.videoContainer.addView(view)
         binding.indicatorContainer.isVisible = !isLocal
     }

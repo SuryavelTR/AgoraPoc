@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import com.artium.agora.demo.R
 import com.artium.agora.demo.databinding.FragmentVideoCallBinding
 import com.artium.agora.demo.databinding.ViewMasterControllerBinding
@@ -67,14 +68,20 @@ class VideoCallFragment : Fragment() {
         controllerBinding.controllerCamera.setOnClickListener {
             callSessionViewModel.toggleCamera()
         }
+
+        controllerBinding.controllerDisconnect.setOnClickListener {
+            findNavController().popBackStack()
+        }
     }
 
     private fun setUpVideoCall() {
         callSessionViewModel.onLocalJoinedStatusChange().observe(viewLifecycleOwner) { joined ->
             if (joined) {
-                RtcEngine.CreateRendererView(requireActivity().baseContext).let { surfaceView ->
-                    binding.localVideoContainer.addVideoView(surfaceView, true)
-                    callSessionViewModel.setUpLocalVideoView(surfaceView)
+                RtcEngine.CreateTextureView(requireActivity().baseContext).let { textureView ->
+//                    surfaceView.setZOrderMediaOverlay(true)
+                    textureView.scaleX = -1.0f
+                    binding.localVideoContainer.addVideoView(textureView, true)
+                    callSessionViewModel.setUpLocalVideoView(textureView)
                 }
             } else {
                 binding.localVideoContainer.removeVideoView()
@@ -84,9 +91,10 @@ class VideoCallFragment : Fragment() {
         callSessionViewModel.onRemoteJoinedStatusChange().observe(viewLifecycleOwner) { userInfo ->
             binding.remoteVideoContainer.isVisible = userInfo.isJoined
             if (userInfo.isJoined) {
-                RtcEngine.CreateRendererView(requireActivity().baseContext).let { surfaceView ->
-                    binding.remoteVideoContainer.addVideoView(surfaceView)
-                    callSessionViewModel.setUpRemoteVideoView(surfaceView, userInfo.uid)
+                RtcEngine.CreateTextureView(requireActivity().baseContext).let { textureView ->
+                    textureView.scaleX = -1.0f
+                    binding.remoteVideoContainer.addVideoView(textureView)
+                    callSessionViewModel.setUpRemoteVideoView(textureView, userInfo.uid)
                 }
             } else {
                 binding.remoteVideoContainer.removeVideoView()

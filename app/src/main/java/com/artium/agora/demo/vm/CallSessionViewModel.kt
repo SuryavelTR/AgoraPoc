@@ -1,6 +1,6 @@
 package com.artium.agora.demo.vm
 
-import android.view.SurfaceView
+import android.view.TextureView
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -147,7 +147,8 @@ class CallSessionViewModel @Inject constructor(private val rtcEngine: RtcEngine)
     }
 
     private fun updateMic() {
-        rtcEngine.muteLocalAudioStream(!uiState.isMicOn)
+//        rtcEngine.muteLocalAudioStream(!uiState.isMicOn)
+        if (uiState.isMicOn) rtcEngine.enableAudio() else rtcEngine.disableAudio()
     }
 
     fun toggleCamera() {
@@ -157,7 +158,8 @@ class CallSessionViewModel @Inject constructor(private val rtcEngine: RtcEngine)
     }
 
     private fun updateCamera() {
-        rtcEngine.muteLocalVideoStream(!uiState.isCameraOn)
+//        rtcEngine.muteLocalVideoStream(!uiState.isCameraOn)
+        if (uiState.isCameraOn) rtcEngine.enableVideo() else rtcEngine.disableVideo()
     }
 
     fun onMicStatusChange(): LiveData<Boolean> = micStatusChangeLiveData
@@ -177,21 +179,18 @@ class CallSessionViewModel @Inject constructor(private val rtcEngine: RtcEngine)
 
         rtcEngine.setClientRole(Constants.CLIENT_ROLE_BROADCASTER)
 
-        rtcEngine.enableVideo()
-        rtcEngine.enableAudio()
-
         updateMic()
         updateCamera()
 
         rtcEngine.joinChannel(token, channelName, "", 0)
     }
 
-    fun setUpLocalVideoView(surfaceView: SurfaceView) {
-        rtcEngine.setupLocalVideo(VideoCanvas(surfaceView, VideoCanvas.RENDER_MODE_FIT, 0))
+    fun setUpLocalVideoView(textureView: TextureView) {
+        rtcEngine.setupLocalVideo(VideoCanvas(textureView, VideoCanvas.RENDER_MODE_FILL, 0))
     }
 
-    fun setUpRemoteVideoView(surfaceView: SurfaceView, uid: Int) {
-        rtcEngine.setupRemoteVideo(VideoCanvas(surfaceView, VideoCanvas.RENDER_MODE_FIT, uid))
+    fun setUpRemoteVideoView(textureView: TextureView, uid: Int) {
+        rtcEngine.setupRemoteVideo(VideoCanvas(textureView, VideoCanvas.RENDER_MODE_FIT, uid))
     }
 
     fun leaveCall() {
