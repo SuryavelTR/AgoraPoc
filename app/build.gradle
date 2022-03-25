@@ -22,10 +22,20 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        release {
+            storeFile file("./keys/release_key.jks")
+            storePassword "Artium@123"
+            keyAlias "agora_demo"
+            keyPassword "Artium@123"
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {
