@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/app_navigation"
+    app:startDestination="@id/introFragment">
+
+    <fragment
+        android:id="@+id/introFragment"
+        android:name="com.artium.agora.demo.fragments.IntroFragment">
+        <action
+            android:id="@+id/intro_to_pre_join_fragment"
+            app:destination="@id/preJoinCallFragment"
+            app:popUpTo="@id/introFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/preJoinCallFragment"
+        android:name="com.artium.agora.demo.fragments.PreJoinCallFragment">
+        <action
+            android:id="@+id/pre_join_to_video_call_fragment"
+            app:destination="@id/videoCallFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/videoCallFragment"
+        android:name="com.artium.agora.demo.fragments.VideoCallFragment" />
+</navigation>
