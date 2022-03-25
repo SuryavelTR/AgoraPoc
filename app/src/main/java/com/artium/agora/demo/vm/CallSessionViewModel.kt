@@ -14,7 +14,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CallSessionViewModel @Inject constructor(private val rtcEngine: RtcEngine) : ViewModel() {
     private val token =
-        "006f2b6d3398e0d42418815bee3b7974e5fIADuStcCHC5IcxOVSP1unCL63oFGjtUdqiXpjOrobLTI0BEfIGgAAAAAEAAhqfJE76U9YgEAAQDspT1i"
+        "006f2b6d3398e0d42418815bee3b7974e5fIAAyALmfqAePxgyYYELVez7ZbLeYLfGaCr/VZFItw6CX0REfIGgAAAAAEAAJmhJvC+I+YgEAAQAL4j5i"
 
     // Fill the channel name.
     private val channelName = "artium_demo_ch"
@@ -147,8 +147,9 @@ class CallSessionViewModel @Inject constructor(private val rtcEngine: RtcEngine)
     }
 
     private fun updateMic() {
-//        rtcEngine.muteLocalAudioStream(!uiState.isMicOn)
-        if (uiState.isMicOn) rtcEngine.enableAudio() else rtcEngine.disableAudio()
+        rtcEngine.muteLocalAudioStream(!uiState.isMicOn)
+//        if (uiState.isMicOn) rtcEngine.enableLocalAudio(true) else rtcEngine.enableLocalAudio(false)
+
     }
 
     fun toggleCamera() {
@@ -158,8 +159,8 @@ class CallSessionViewModel @Inject constructor(private val rtcEngine: RtcEngine)
     }
 
     private fun updateCamera() {
-//        rtcEngine.muteLocalVideoStream(!uiState.isCameraOn)
-        if (uiState.isCameraOn) rtcEngine.enableVideo() else rtcEngine.disableVideo()
+        rtcEngine.muteLocalVideoStream(!uiState.isCameraOn)
+//        if (uiState.isCameraOn) rtcEngine.enableVideo() else rtcEngine.enableVideo()
     }
 
     fun onMicStatusChange(): LiveData<Boolean> = micStatusChangeLiveData
@@ -178,6 +179,8 @@ class CallSessionViewModel @Inject constructor(private val rtcEngine: RtcEngine)
         rtcEngine.setChannelProfile(Constants.CHANNEL_PROFILE_LIVE_BROADCASTING)
 
         rtcEngine.setClientRole(Constants.CLIENT_ROLE_BROADCASTER)
+
+        rtcEngine.enableVideo()
 
         updateMic()
         updateCamera()
