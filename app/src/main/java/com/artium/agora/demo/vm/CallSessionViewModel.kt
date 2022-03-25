@@ -19,17 +19,16 @@ class CallSessionViewModel @Inject constructor(private val rtcEngine: RtcEngine)
     // Fill the channel name.
     private val channelName = "artium_demo_ch"
 
-    private val uiState = CallSessionUiState(
-        isMicOn = true,
-        isCameraOn = true,
-        isLocalJoined = false,
-        isRemoteJoined = false
-    )
+    private val uiState = CallSessionUiState()
 
     private val micStatusChangeLiveData = MutableLiveData(uiState.isMicOn)
     private val cameraStatusChangeLiveData = MutableLiveData(uiState.isCameraOn)
     private val localJoinedLiveData = MutableLiveData(uiState.isLocalJoined)
     private val remoteJoinedLiveData = MutableLiveData<RemoteUserInfo>()
+
+    //remote
+    private val remoteMicStatusChangeLiveData = MutableLiveData(uiState.isRemoteMicOn)
+    private val remoteVideoStatusChangeLiveData = MutableLiveData(uiState.isRemoteVideoOn)
 
     private val engineEventHandler: IRtcEngineEventHandler = object : IRtcEngineEventHandler() {
         override fun onJoinChannelSuccess(channel: String?, uid: Int, elapsed: Int) {
@@ -46,6 +45,95 @@ class CallSessionViewModel @Inject constructor(private val rtcEngine: RtcEngine)
             super.onUserOffline(uid, reason)
             remoteJoinedLiveData.postValue(RemoteUserInfo(uid, false))
         }
+
+        override fun onActiveSpeaker(uid: Int) {
+            super.onActiveSpeaker(uid)
+        }
+
+        //region Video
+        override fun onFacePositionChanged(
+            imageWidth: Int,
+            imageHeight: Int,
+            faces: Array<out AgoraFacePositionInfo>?
+        ) {
+            super.onFacePositionChanged(imageWidth, imageHeight, faces)
+        }
+
+        override fun onUserEnableVideo(uid: Int, enabled: Boolean) {
+            super.onUserEnableVideo(uid, enabled)
+        }
+
+        override fun onUserEnableLocalVideo(uid: Int, enabled: Boolean) {
+            super.onUserEnableLocalVideo(uid, enabled)
+            remoteVideoStatusChangeLiveData.postValue(enabled)
+        }
+
+        /**
+         * Provides the video state for local user.
+         * 0 - disabled
+         * 1 -
+         * 2 - Enabled
+         */
+//        override fun onLocalVideoStateChanged(localVideoState: Int, error: Int) {
+//            super.onLocalVideoStateChanged(localVideoState, error)
+//        }
+
+        override fun onRemoteVideoStateChanged(uid: Int, state: Int, reason: Int, elapsed: Int) {
+            super.onRemoteVideoStateChanged(uid, state, reason, elapsed)
+            remoteVideoStatusChangeLiveData.postValue(state == Constants.REMOTE_VIDEO_STATE_DECODING)
+        }
+
+//        override fun onLocalVideoStats(stats: LocalVideoStats?) {
+//            super.onLocalVideoStats(stats)
+//        }
+
+//        override fun onRemoteVideoStats(stats: RemoteVideoStats?) {
+//            super.onRemoteVideoStats(stats)
+//        }
+
+        override fun onUserMuteVideo(uid: Int, muted: Boolean) {
+            super.onUserMuteVideo(uid, muted)
+            remoteVideoStatusChangeLiveData.postValue(!muted)
+        }
+
+        //endregion
+
+        //region Audio
+        override fun onUserMuteAudio(uid: Int, muted: Boolean) {
+            super.onUserMuteAudio(uid, muted)
+            remoteMicStatusChangeLiveData.postValue(!muted)
+        }
+
+        /**
+         * Provides the audio state for local user.
+         * 0 - disabled
+         * 1 -
+         * 2 - Enabled
+         */
+//        override fun onLocalAudioStateChanged(state: Int, error: Int) {
+//            super.onLocalAudioStateChanged(state, error)
+//        }
+
+        override fun onRemoteAudioStateChanged(uid: Int, state: Int, reason: Int, elapsed: Int) {
+            super.onRemoteAudioStateChanged(uid, state, reason, elapsed)
+            remoteMicStatusChangeLiveData.postValue(state == Constants.REMOTE_AUDIO_STATE_DECODING)
+        }
+
+//        override fun onLocalAudioStats(stats: LocalAudioStats?) {
+//            super.onLocalAudioStats(stats)
+//        }
+
+//        override fun onRemoteAudioStats(stats: RemoteAudioStats?) {
+//            super.onRemoteAudioStats(stats)
+//        }
+
+        override fun onAudioVolumeIndication(
+            speakers: Array<out AudioVolumeInfo>?,
+            totalVolume: Int
+        ) {
+            super.onAudioVolumeIndication(speakers, totalVolume)
+        }
+        //endregion
     }
 
     init {
@@ -59,11 +147,7 @@ class CallSessionViewModel @Inject constructor(private val rtcEngine: RtcEngine)
     }
 
     private fun updateMic() {
-        if (uiState.isMicOn) {
-            rtcEngine.enableAudio()
-        } else {
-            rtcEngine.disableAudio()
-        }
+        rtcEngine.muteLocalAudioStream(!uiState.isMicOn)
     }
 
     fun toggleCamera() {
@@ -73,11 +157,7 @@ class CallSessionViewModel @Inject constructor(private val rtcEngine: RtcEngine)
     }
 
     private fun updateCamera() {
-        if (uiState.isCameraOn) {
-            rtcEngine.enableVideo()
-        } else {
-            rtcEngine.disableVideo()
-        }
+        rtcEngine.muteLocalVideoStream(!uiState.isCameraOn)
     }
 
     fun onMicStatusChange(): LiveData<Boolean> = micStatusChangeLiveData
@@ -88,10 +168,17 @@ class CallSessionViewModel @Inject constructor(private val rtcEngine: RtcEngine)
 
     fun onRemoteJoinedStatusChange(): LiveData<RemoteUserInfo> = remoteJoinedLiveData
 
+    fun onRemoteMicStatusChange(): LiveData<Boolean> = remoteMicStatusChangeLiveData
+
+    fun onRemoteVideoStatusChange(): LiveData<Boolean> = remoteVideoStatusChangeLiveData
+
     fun joinCall() {
         rtcEngine.setChannelProfile(Constants.CHANNEL_PROFILE_LIVE_BROADCASTING)
 
         rtcEngine.setClientRole(Constants.CLIENT_ROLE_BROADCASTER)
+
+        rtcEngine.enableVideo()
+        rtcEngine.enableAudio()
 
         updateMic()
         updateCamera()
@@ -118,10 +205,12 @@ class CallSessionViewModel @Inject constructor(private val rtcEngine: RtcEngine)
 }
 
 data class CallSessionUiState(
-    var isMicOn: Boolean,
-    var isCameraOn: Boolean,
-    var isLocalJoined: Boolean,
-    var isRemoteJoined: Boolean
+    var isMicOn: Boolean = true,
+    var isCameraOn: Boolean = true,
+    var isLocalJoined: Boolean = false,
+    var isRemoteJoined: Boolean = false,
+    var isRemoteMicOn: Boolean = false,
+    var isRemoteVideoOn: Boolean = false
 )
 
 data class RemoteUserInfo(val uid: Int, val isJoined: Boolean)

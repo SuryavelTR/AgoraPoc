@@ -52,6 +52,14 @@ class VideoCallFragment : Fragment() {
             )
         }
 
+        callSessionViewModel.onRemoteMicStatusChange().observe(viewLifecycleOwner) { enabled ->
+            binding.remoteVideoContainer.setMicStatus(enabled)
+        }
+
+        callSessionViewModel.onRemoteVideoStatusChange().observe(viewLifecycleOwner) { enabled ->
+            binding.remoteVideoContainer.setVideoStatus(enabled)
+        }
+
         controllerBinding.controllerMic.setOnClickListener {
             callSessionViewModel.toggleMic()
         }
