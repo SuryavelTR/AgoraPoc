@@ -1,6 +1,7 @@
 package com.artium.agora.demo.di
 
 import android.content.Context
+import com.artium.agora.demo.network.ChannelInfo
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,10 +15,14 @@ import io.agora.rtc.RtcEngine
 class RtcProvider {
 
     @Provides
-    fun providesRtcEngine(@ApplicationContext app: Context): RtcEngine =
-        RtcEngine.create(
-            app,
-            "f2b6d3398e0d42418815bee3b7974e5f",
-            object : IRtcEngineEventHandler() {}
-        )
+    fun providesRtcEngine(@ApplicationContext app: Context): RtcHelper = RtcHelper(app)
+}
+
+class RtcHelper(private val context: Context) {
+
+    fun initRtcEngine(channelInfo: ChannelInfo): RtcEngine = RtcEngine.create(
+        context,
+        channelInfo.appId,
+        object : IRtcEngineEventHandler() {}
+    )
 }

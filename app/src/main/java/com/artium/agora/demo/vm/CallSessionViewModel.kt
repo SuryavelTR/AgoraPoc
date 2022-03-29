@@ -4,20 +4,26 @@ import android.view.TextureView
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.liveData
+import com.artium.agora.demo.di.RtcHelper
+import com.artium.agora.demo.network.ApiClient
+import com.artium.agora.demo.network.ChannelInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.agora.rtc.Constants
 import io.agora.rtc.IRtcEngineEventHandler
 import io.agora.rtc.RtcEngine
 import io.agora.rtc.video.VideoCanvas
+import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
 
 @HiltViewModel
-class CallSessionViewModel @Inject constructor(private val rtcEngine: RtcEngine) : ViewModel() {
-    private val token =
-        "006f2b6d3398e0d42418815bee3b7974e5fIAAyALmfqAePxgyYYELVez7ZbLeYLfGaCr/VZFItw6CX0REfIGgAAAAAEAAJmhJvC+I+YgEAAQAL4j5i"
+class CallSessionViewModel @Inject constructor(
+    private val rtcHelper: RtcHelper,
+    private val apiClient: ApiClient
+) : ViewModel() {
 
-    // Fill the channel name.
-    private val channelName = "artium_demo_ch"
+    private var channelInfo: ChannelInfo? = null
+    private lateinit var rtcEngine: RtcEngine
 
     private val uiState = CallSessionUiState()
 
@@ -29,6 +35,13 @@ class CallSessionViewModel @Inject constructor(private val rtcEngine: RtcEngine)
     //remote
     private val remoteMicStatusChangeLiveData = MutableLiveData(uiState.isRemoteMicOn)
     private val remoteVideoStatusChangeLiveData = MutableLiveData(uiState.isRemoteVideoOn)
+
+
+    fun initiateRtcEngine(info: ChannelInfo) {
+        channelInfo = info
+        rtcEngine = rtcHelper.initRtcEngine(info)
+        rtcEngine.addHandler(engineEventHandler)
+    }
 
     private val engineEventHandler: IRtcEngineEventHandler = object : IRtcEngineEventHandler() {
         override fun onJoinChannelSuccess(channel: String?, uid: Int, elapsed: Int) {
@@ -136,10 +149,6 @@ class CallSessionViewModel @Inject constructor(private val rtcEngine: RtcEngine)
         //endregion
     }
 
-    init {
-        rtcEngine.addHandler(engineEventHandler)
-    }
-
     fun toggleMic() {
         uiState.isMicOn = !uiState.isMicOn
         micStatusChangeLiveData.value = uiState.isMicOn
@@ -176,16 +185,18 @@ class CallSessionViewModel @Inject constructor(private val rtcEngine: RtcEngine)
     fun onRemoteVideoStatusChange(): LiveData<Boolean> = remoteVideoStatusChangeLiveData
 
     fun joinCall() {
-        rtcEngine.setChannelProfile(Constants.CHANNEL_PROFILE_LIVE_BROADCASTING)
+        channelInfo?.let { info ->
+            rtcEngine.setChannelProfile(Constants.CHANNEL_PROFILE_LIVE_BROADCASTING)
 
-        rtcEngine.setClientRole(Constants.CLIENT_ROLE_BROADCASTER)
+            rtcEngine.setClientRole(Constants.CLIENT_ROLE_BROADCASTER)
 
-        rtcEngine.enableVideo()
+            rtcEngine.enableVideo()
 
-        updateMic()
-        updateCamera()
+            updateMic()
+            updateCamera()
 
-        rtcEngine.joinChannel(token, channelName, "", 0)
+            rtcEngine.joinChannel(info.token, info.channelName, "", 0)
+        }
     }
 
     fun setUpLocalVideoView(textureView: TextureView) {
@@ -198,6 +209,14 @@ class CallSessionViewModel @Inject constructor(private val rtcEngine: RtcEngine)
 
     fun leaveCall() {
         rtcEngine.leaveChannel()
+    }
+
+    fun retrieveChannelInfo() = liveData(Dispatchers.IO) {
+        try {
+            emit(apiClient.fetchCallInfo())
+        } catch (exception: Exception) {
+            emit(null)
+        }
     }
 
     override fun onCleared() {

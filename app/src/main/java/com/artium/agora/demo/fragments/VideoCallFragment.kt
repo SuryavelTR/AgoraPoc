@@ -104,6 +104,10 @@ class VideoCallFragment : Fragment() {
         callSessionViewModel.joinCall()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         callSessionViewModel.leaveCall()
