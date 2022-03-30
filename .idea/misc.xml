@@ -8,8 +8,10 @@
         <entry key="app/src/main/res/layout/activity_interactive_live_streaming.xml" value="0.13728470111448834" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.13728470111448834" />
         <entry key="app/src/main/res/layout/fragment_intro.xml" value="0.13728470111448834" />
+        <entry key="app/src/main/res/layout/fragment_multi_video_call.xml" value="0.16576086956521738" />
         <entry key="app/src/main/res/layout/fragment_pre_join.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_video_call.xml" value="0.13728470111448834" />
+        <entry key="app/src/main/res/layout/item_video_container.xml" value="0.13728470111448834" />
         <entry key="app/src/main/res/layout/view_master_controller.xml" value="0.43333333333333335" />
         <entry key="app/src/main/res/layout/view_video_container.xml" value="0.43333333333333335" />
       </map>

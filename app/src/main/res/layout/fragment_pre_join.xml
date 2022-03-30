@@ -5,16 +5,32 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/joinButton"
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/buttonContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Join"
+        android:gravity="center"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:visibility="gone" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <Button
+            android:id="@+id/joinButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Join"
+            tools:visibility="gone" />
+
+        <Button
+            android:id="@+id/joinGroupButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Join Group"
+            tools:visibility="gone" />
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
 
     <ProgressBar
         android:id="@+id/progressIndicator"

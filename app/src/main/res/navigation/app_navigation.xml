@@ -20,9 +20,17 @@
         <action
             android:id="@+id/pre_join_to_video_call_fragment"
             app:destination="@id/videoCallFragment" />
+
+        <action
+            android:id="@+id/pre_join_to_multi_video_call_fragment"
+            app:destination="@id/multiVideoCallFragment" />
     </fragment>
 
     <fragment
         android:id="@+id/videoCallFragment"
         android:name="com.artium.agora.demo.fragments.VideoCallFragment" />
+
+    <fragment
+        android:id="@+id/multiVideoCallFragment"
+        android:name="com.artium.agora.demo.fragments.MultiVideoCallFragment" />
 </navigation>
