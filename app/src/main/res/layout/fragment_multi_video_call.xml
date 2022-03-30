@@ -9,7 +9,6 @@
         android:id="@+id/focusedCallerVideoContainer"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="#00FF00"
         app:layout_constraintBottom_toTopOf="@id/otherCallersRecyclerView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -30,7 +29,6 @@
         android:id="@+id/otherCallersRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#0000FF"
         app:layout_constraintBottom_toTopOf="@id/callControllerContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

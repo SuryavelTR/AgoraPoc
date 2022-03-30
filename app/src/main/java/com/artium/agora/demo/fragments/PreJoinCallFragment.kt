@@ -11,12 +11,14 @@ import androidx.navigation.fragment.findNavController
 import com.artium.agora.demo.databinding.FragmentPreJoinBinding
 import com.artium.agora.demo.network.ChannelInfo
 import com.artium.agora.demo.vm.CallSessionViewModel
+import com.artium.agora.demo.vm.MultiCallSessionViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class PreJoinCallFragment : Fragment() {
 
     private val callSessionViewModel by activityViewModels<CallSessionViewModel>()
+    private val multiCallSessionViewModel by activityViewModels<MultiCallSessionViewModel>()
 
     private lateinit var binding: FragmentPreJoinBinding
     override fun onCreateView(
@@ -40,6 +42,7 @@ class PreJoinCallFragment : Fragment() {
 
         binding.joinGroupButton.setOnClickListener {
             fetchChannelInfo {
+                multiCallSessionViewModel.initiateRtcEngine(it)
                 findNavController()
                     .navigate(PreJoinCallFragmentDirections.preJoinToMultiVideoCallFragment())
             }
